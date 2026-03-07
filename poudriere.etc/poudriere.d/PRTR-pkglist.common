@@ -39,6 +39,8 @@ net/quagga-bgp-netgen
 net/tayga
 net/wireguard-tools
 ports-mgmt/pkg
+security/liboqs
+security/openssl-oqsprovider
 security/openvpn
 security/openvpn-auth-radius
 security/strongswan
