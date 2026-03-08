@@ -23,19 +23,16 @@ net/dhcprelya
 net/exabgp4
 net/graphpath
 net/isc-dhcp44-server
-net/ixl_unlock
 net/mlvpn
 net/mpd5
 net/mrouted
 net/mrtparse
 net/mtr@nox11
 net/nc
-net/netmap-fwd
 net/ntraceroute
 net/pimd
 net/pimdd
 net/pkt-gen
-net/quagga-bgp-netgen
 net/tayga
 net/wireguard-tools
 ports-mgmt/pkg
@@ -53,3 +50,7 @@ sysutils/ipmitool
 sysutils/monit
 sysutils/mstflint
 sysutils/tmux
+
+# TODO: Re-evaluate when dpdk port is updated for FreeBSD 16-CURRENT
+# net/dpdk   - dpdk22.11 broken: ld.lld rejects legacy -rpath,/path syntax
+# net/vpp    - depends on net/dpdk (kernel bypass dataplane, optional for PRTR)

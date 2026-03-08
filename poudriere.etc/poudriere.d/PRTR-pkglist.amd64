@@ -1,5 +1,4 @@
 net/realtek-re-kmod
-net/vpp
 sysutils/cpu-microcode
 sysutils/dtrace-toolkit
 sysutils/intel-pcm
