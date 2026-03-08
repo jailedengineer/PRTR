@@ -54,3 +54,7 @@ sysutils/tmux
 # TODO: Re-evaluate when dpdk port is updated for FreeBSD 16-CURRENT
 # net/dpdk   - dpdk22.11 broken: ld.lld rejects legacy -rpath,/path syntax
 # net/vpp    - depends on net/dpdk (kernel bypass dataplane, optional for PRTR)
+sysutils/lcdproc
+net/trafshow
+sysutils/node_exporter
+lang/go
