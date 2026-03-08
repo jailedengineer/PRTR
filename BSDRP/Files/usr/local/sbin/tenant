@@ -2,9 +2,9 @@
 #
 # Tenant (jail on nanobsd helper script) for BSD Router Project
 # Adapted to be used on generic FreeBSD too
-# https://bsdrp.net
+# https://prtr.net
 #
-# Copyright (c) 2017-2026, The BSDRP Development Team
+# Copyright (c) 2017-2026, The PRTR Development Team
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -124,7 +124,7 @@ create () {
 		jailetc="/etc/jails/${tenant}"
 		# In NANOBSD mode, autosave should be enabled if jail is created
 		# It allow to automatically save customer configuration changes
-		# But autosave is only available on BSDRP, so do not display error
+		# But autosave is only available on PRTR, so do not display error
 		# in case it could not start it
 		if ! sysrc -c autosave_enable="YES"; then
 			sysrc autosave_enable="YES" > /dev/null 2>&1

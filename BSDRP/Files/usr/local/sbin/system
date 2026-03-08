@@ -1,9 +1,9 @@
 #!/bin/sh
 #
 # System tool for BSD Router Project
-# https://bsdrp.net
+# https://prtr.net
 #
-# Copyright (c) 2009-2025, The BSDRP Development Team
+# Copyright (c) 2009-2025, The PRTR Development Team
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -82,7 +82,7 @@ is_integer () {
 }
 
 # Resolve ufs or gpt label to physical disk name
-# ufs/BSDRP -> ada0
+# ufs/PRTR -> ada0
 # $1: NANO_DRIVE label
 label2dev () {
 	local output=$(glabel status | grep -E "$1(s1a|s1|1)" \
@@ -108,7 +108,7 @@ label2part () {
 # Return gpt|ufs label from the mount point
 # $1: mount point (/, /data, /cfg, etc)
 mount2label () {
-	local output=$(grep -w $1 /etc/fstab | cut -d ' ' -f 1 | cut -d '/' -f 3-4)	# ufs/BSDRPs4
+	local output=$(grep -w $1 /etc/fstab | cut -d ' ' -f 1 | cut -d '/' -f 3-4)	# ufs/PRTRs4
 	[ -n "${output}" ] && echo ${output} || die "BUG in mount2label: Can't retrieve label from mount"
 }
 
@@ -208,11 +208,11 @@ install () {
 	fi
 
 	# Load the NANO_DRIVE (label) variable:
-	# nanobsd: ufs/BSDRP
-	# poudriere-image: gpt/BSDRP
+	# nanobsd: ufs/PRTR
+	# poudriere-image: gpt/PRTR
 	. /etc/nanobsd.conf
 
-	label=$(get_label)				# BSDRP
+	label=$(get_label)				# PRTR
 	boot_dev=$(label2dev ${NANO_DRIVE})		# da0
 
 	disks=$(sysctl -n kern.disks)
@@ -241,12 +241,12 @@ install () {
 expand_data_slice () {
 
 	# Load the NANO_DRIVE (label) variable:
-	# nanobsd: ufs/BSDRP
-	# poudriere-image: gpt/BSDRP
+	# nanobsd: ufs/PRTR
+	# poudriere-image: gpt/PRTR
 	. /etc/nanobsd.conf
 
 	lbltype=$(echo ${NANO_DRIVE} | cut -d '/' -f 1)	# ufs or gpt
-	label=$(echo ${NANO_DRIVE} | cut -d '/' -f 2)	# BSDRP
+	label=$(echo ${NANO_DRIVE} | cut -d '/' -f 2)	# PRTR
 	boot_dev=$(label2dev ${NANO_DRIVE})				# ad0
 
 	is_mounted "/data" && die "/data is mounted, you need to unmount it"
@@ -260,8 +260,8 @@ expand_data_slice () {
 	echo "There is ${free_space} available on your disk that can be use for /data"
 	user_confirm "Are you sure to repartition your disk (it is a long process) ? (y/n)"
 
-	lbldatapart=$(mount2label '/data')		# ufs/BSDRPs4
-	partid=$(label2part ${lbldatapart})		# 4 for ufs/BSDRPs4 or 6 for gpt/data
+	lbldatapart=$(mount2label '/data')		# ufs/PRTRs4
+	partid=$(label2part ${lbldatapart})		# 4 for ufs/PRTRs4 or 6 for gpt/data
 
 	# gpart resize + growfs is simpler than deleting and recreating partition
 	# but growfs is very slow
@@ -283,14 +283,14 @@ expand_data_slice () {
 # 3. Change the active slice and bootloader default choice
 rollback () {
 	# Load the NANO_DRIVE (label) variable:
-	# nanobsd: ufs/BSDRP
-	# poudriere-image: gpt/BSDRP
+	# nanobsd: ufs/PRTR
+	# poudriere-image: gpt/PRTR
 	. /etc/nanobsd.conf
 
 	lbl_type=$(echo ${NANO_DRIVE} | cut -d '/' -f 1)	# ufs or gpt
-	label=$(echo ${NANO_DRIVE} | cut -d '/' -f 2)		# BSDRP
+	label=$(echo ${NANO_DRIVE} | cut -d '/' -f 2)		# PRTR
 	boot_dev=$(label2dev ${NANO_DRIVE})					# /dev/ad0
-	lbl_active=$(mount2label '/')			# ufs/BSDRPs2a or gpt/BSDRP2 or ufs/BSDRPs2
+	lbl_active=$(mount2label '/')			# ufs/PRTRs2a or gpt/PRTR2 or ufs/PRTRs2
 	part_active=$(label2part ${lbl_active})	# 1 or 2 for nanobsd 3-4 for poudriere-image
 
 	if (echo "${lbl_active}" | grep -q "1"); then
@@ -359,8 +359,8 @@ rollback () {
 	esac
 
 	# Log
-	echo "BSDRP system rollback complete"
-	logger BSDRP system rollback complete
+	echo "PRTR system rollback complete"
+	logger PRTR system rollback complete
 }
 
 # Check if cfg was modified
@@ -374,7 +374,7 @@ check_cfg () {
 }
 
 # In case of second partition the active one, need to switch to first partition
-# $1: active partition in form ufs/BSDRPs2 or gpt/BSDRP2
+# $1: active partition in form ufs/PRTRs2 or gpt/PRTR2
 swap_system() {
 	echo -n "Active partition need to be partition 1, swaping it (Don't stop this fake-upgrade operation!)..."
 	cat /dev/$1 | upgrade
@@ -409,7 +409,7 @@ resize_system() {
 		gpart delete -i 5 ${boot_dev}
 		gpart delete -i 4 ${boot_dev}
 		gpart resize -i 3 -a 4k -s ${SECOND_OPTION} ${boot_dev}
-		gpart add -t freebsd-ufs -i 4 -a 4k -s ${SECOND_OPTION} -l BSDRP2 ${boot_dev}
+		gpart add -t freebsd-ufs -i 4 -a 4k -s ${SECOND_OPTION} -l PRTR2 ${boot_dev}
 		gpart add -t freebsd-ufs -i 5 -a 4k -s 32M -l cfg ${boot_dev}
 		gpart add -t freebsd-ufs -i 6 -a 4k -l data ${boot_dev}
 		newfs -b 4096 -f 512 -i 8192 -U -L cfg /dev/gpt/cfg
@@ -430,8 +430,8 @@ resize_system_slice () {
 	user_confirm "Do you want to continue ? (y/n): "
 
 	# Load the NANO_DRIVE (label) variable:
-	# nanobsd: ufs/BSDRP
-	# poudriere-image: gpt/BSDRP
+	# nanobsd: ufs/PRTR
+	# poudriere-image: gpt/PRTR
 	. /etc/nanobsd.conf
 
 	local boot_dev=$(label2dev ${NANO_DRIVE})		# da0
@@ -448,7 +448,7 @@ resize_system_slice () {
 
 	is_mounted "/data" && die "/data is mounted, you need to unmount it"
 
-	local lbl_active=$(mount2label '/')           # ufs/BSDRPs2a or gpt/BSDRP2
+	local lbl_active=$(mount2label '/')           # ufs/PRTRs2a or gpt/PRTR2
 	local lbl_type=$(echo ${NANO_DRIVE} | cut -d '/' -f 1)
 	if echo ${lbl_active} | grep -q 2; then
 		swap_system ${lbl_active}

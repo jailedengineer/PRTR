@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# MPD5 interface up script for BSDRP
+# MPD5 interface up script for PRTR
 # Handles IPv4 and IPv6 route addition when PPP interface comes up
 #
 # Called by mpd5 with the following arguments:

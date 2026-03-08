@@ -1,9 +1,9 @@
 #!/bin/sh
 #
 # Upgrade tool for BSD Router Project
-# https://bsdrp.net
+# https://prtr.net
 #
-# Copyright (c) 2009-2025, The BSDRP Development Team
+# Copyright (c) 2009-2025, The PRTR Development Team
 # All rights reserved.
 # Based on the updatep1 and updatep2 script of nanoBSD
 #
@@ -67,7 +67,7 @@ case "$-" in
 esac
 
 
-#Load the NANO_DRIVE variable (ufs/BSDRP or gpt/BSDRP):
+#Load the NANO_DRIVE variable (ufs/PRTR or gpt/PRTR):
 [ -f /etc/nanobsd.conf ] || die "No /etc/nanobsd.conf found"
 . /etc/nanobsd.conf
 
@@ -97,21 +97,21 @@ v_umount () {
 # Populate boot device and labels informations
 get_boot_info() {
 	mountfrom=$(kenv vfs.root.mountfrom)
-	# MBR (nanobsd): "ufs:/dev/ufs/BSDRPs1a"
-	# GPT (poudriere): "ufs:/dev/gpt/BSDRP1"
+	# MBR (nanobsd): "ufs:/dev/ufs/PRTRs1a"
+	# GPT (poudriere): "ufs:/dev/gpt/PRTR1"
 	# Removing prefix "ufs:"
 	mountfrom=$(echo ${mountfrom} | cut -d ':' -f 2)
 	# Could be in multiple forms:
-	# /dev/ufs/BSDRPs[1-2]a for old nanobsd
-	# /dev/gpt/BSDRP[1-2] for fresh poudriere-image
-	# /dev/ufs/BSDRP[1-2] for converted nanobsd to poudriere-image
-	# Now we could extract the label ID (NANO_DRIVE=ufs/BSDRP or gpt/BSDRP)
+	# /dev/ufs/PRTRs[1-2]a for old nanobsd
+	# /dev/gpt/PRTR[1-2] for fresh poudriere-image
+	# /dev/ufs/PRTR[1-2] for converted nanobsd to poudriere-image
+	# Now we could extract the label ID (NANO_DRIVE=ufs/PRTR or gpt/PRTR)
 	CURRENT_LABEL_ID=$(echo ${mountfrom} | awk -F"${NANO_DRIVE}" '{print $2}')
 	[ -z "${CURRENT_LABEL_ID}" ] && die "Bug in get_boot_info: CURRENT_LABEL_ID can't be empty"
 	# s1a (MBR), s1 (converted MBR), or 1 (GPT)
 	# Removing prefix /dev/
 	mountfrom=${mountfrom#/dev/}
-	# ufs/BSDRPs1a or gpt/BSDRP1 or ufs/BSDRP1
+	# ufs/PRTRs1a or gpt/PRTR1 or ufs/PRTR1
 	BOOT_PART=$(glabel status | awk -v label=$mountfrom '$1 == label {print $3}')
 	# ada0s1a (MBR) or ada0p3 (GPT) or adas1 (converted)
 	# Need to resolve the disk name, by removing the partition id at the end:
@@ -228,7 +228,7 @@ write_new_image() {
 
 	# Wait 30 seconds for autosave finish current backup
 	i=0
-	while [ -f /var/run/autosave.bsdrp.lock ]; do
+	while [ -f /var/run/autosave.prtr.lock ]; do
 		sleep 1
 		i=$((i + 1))
 		printf "Waiting for autosave: %s second before timeout" $((30 - i))
@@ -240,13 +240,13 @@ write_new_image() {
 
 	# Adapt fstab of the new system
 	# New poudriere-image will have such lines:
-	# /dev/gpt/BSDRP1 / ufs ro 1 1
+	# /dev/gpt/PRTR1 / ufs ro 1 1
 	# /dev/gpt/cfg
 	# /dev/gpt/data
 	# But old nanobsd will have:
-	# /dev/ufs/BSDRPs1a / ufs ro 1 1
-	# /dev/ufs/BSDRPs3
-	# /dev/ufs/BSDRPs4
+	# /dev/ufs/PRTRs1a / ufs ro 1 1
+	# /dev/ufs/PRTRs3
+	# /dev/ufs/PRTRs4
 	sed -i "" "s/${LABEL}${CURRENT_LABEL_ID}/${LABEL}${NEXT_LABEL_ID}/g" /etc/fstab
 	for f in /tmp/sysupgrade/etc/fstab /tmp/sysupgrade/conf/base/etc/fstab; do
 		cp /etc/fstab $f

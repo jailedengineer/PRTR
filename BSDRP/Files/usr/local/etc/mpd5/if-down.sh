@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# MPD5 interface down script for BSDRP
+# MPD5 interface down script for PRTR
 # Handles IPv4 and IPv6 route removal when PPP interface goes down
 #
 # Called by mpd5 with the following arguments:

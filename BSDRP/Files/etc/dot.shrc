@@ -8,7 +8,7 @@
 # see also sh(1), environ(7).
 #
 
-# Some BSDRP aliases:
+# Some PRTR aliases:
 alias ls='ls -G'
 alias cli='vtysh'
 alias include='grep'

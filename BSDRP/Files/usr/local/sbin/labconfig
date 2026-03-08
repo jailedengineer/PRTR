@@ -1,10 +1,10 @@
 #!/bin/sh
-# Helper script for building Maximum BSDRP features validation lab
-# https://bsdrp.net/documentation/examples/maximum_bsdrp_features_lab
+# Helper script for building Maximum PRTR features validation lab
+# https://prtr.net/documentation/examples/maximum_prtr_features_lab
 set -eu
 
 usage () {
-	echo "Helper script for configuring BSDRP regression feature lab"
+	echo "Helper script for configuring PRTR regression feature lab"
 	echo "DO NOT USE THIS SCRIPT ON OTHER ROUTERS: IT WILL ERASE YOUR CONFIGURATION"
 	echo "Usage:"
 	echo "$0 lab_type_vm-number"
@@ -12,20 +12,20 @@ usage () {
 	echo "$0 full_vm1        for configuring VM1 of lab Full"
 	echo "$0 frr_vm3         for configuring VM3 of lab FRR"
 	echo "Lab list:"
-	echo "-bird_jails: https://bsdrp.net/documentation/examples/simple_bgp-rip-ospf_lab_with_bird"
-	echo "-bgp: https://bsdrp.net/documentation/examples/bgp_route_reflector_and_confederation_using_quagga_and_bird"
-	echo "-ecmp: https://bsdrp.net/documentation/examples/ecmp"
-	echo "-fairshape: https://bsdrp.net/documentation/examples/fair_traffic_shaping_per_ip_with_ipfw-dummynet"
-	echo "-full: https://bsdrp.net/documentation/examples/maximum_bsdrp_features_lab"
-	echo "-vrrp: https://bsdrp.net/documentation/examples/simple_vrrp_lab"
-	echo "-frr: https://bsdrp.net/documentation/examples/simple_bgp-rip-ospf_lab"
+	echo "-bird_jails: https://prtr.net/documentation/examples/simple_bgp-rip-ospf_lab_with_bird"
+	echo "-bgp: https://prtr.net/documentation/examples/bgp_route_reflector_and_confederation_using_quagga_and_bird"
+	echo "-ecmp: https://prtr.net/documentation/examples/ecmp"
+	echo "-fairshape: https://prtr.net/documentation/examples/fair_traffic_shaping_per_ip_with_ipfw-dummynet"
+	echo "-full: https://prtr.net/documentation/examples/maximum_prtr_features_lab"
+	echo "-vrrp: https://prtr.net/documentation/examples/simple_vrrp_lab"
+	echo "-frr: https://prtr.net/documentation/examples/simple_bgp-rip-ospf_lab"
 	echo "-frr_jails: same as previous but with jails"
-	echo "-graphpath: https://bsdrp.net/documentation/examples/graphpath"
-	echo "-jailpf: https://bsdrp.net/documentation/examples/multi-tenant_ha_pf_firewalls"
-	echo "-mlppp: https://bsdrp.net/documentation/examples/aggregating_multiple_isp_links"
-	echo "-mlvpn: https://bsdrp.net/documentation/examples/aggregating_multiple_isp_links_with_mlvpn"
-	echo "-pimsm: https://bsdrp.net/documentation/examples/multicast_with_pim-sm"
-	echo "-vpn: https://bsdrp.net/documentation/examples/gre_ipsec_and_openvpn"
+	echo "-graphpath: https://prtr.net/documentation/examples/graphpath"
+	echo "-jailpf: https://prtr.net/documentation/examples/multi-tenant_ha_pf_firewalls"
+	echo "-mlppp: https://prtr.net/documentation/examples/aggregating_multiple_isp_links"
+	echo "-mlvpn: https://prtr.net/documentation/examples/aggregating_multiple_isp_links_with_mlvpn"
+	echo "-pimsm: https://prtr.net/documentation/examples/multicast_with_pim-sm"
+	echo "-vpn: https://prtr.net/documentation/examples/gre_ipsec_and_openvpn"
 	exit 1
 }
 
@@ -311,7 +311,7 @@ cat > /etc/pf.conf <<EOF
 #pass in quick on \$TO_R4_if proto gre from \$R4 to \$R2 queue VPN4_TO_R4
 #pass out quick on \$TO_R2_if proto gre from \$R4 to \$R2 queue VPN4_TO_R2
 
-# ALTQ is disabled since BSDRP 1.81 (too much performance impact)
+# ALTQ is disabled since PRTR 1.81 (too much performance impact)
 pass all
 EOF
 
@@ -428,11 +428,11 @@ hostname R4
 log syslog
 !
 interface em3
- ip router isis BSDRP
+ ip router isis PRTR
  ip ospf passive
  ipv6 ospf6 passive
  ipv6 ospf6 area 0.0.0.0
- ipv6 router isis BSDRP
+ ipv6 router isis PRTR
 exit
 !
 interface ng0
@@ -448,11 +448,11 @@ exit
 !
 !
 interface vtnet3
- ip router isis BSDRP
+ ip router isis PRTR
  ip ospf passive
  ipv6 ospf6 passive
  ipv6 ospf6 area 0.0.0.0
-ipv6 router isis BSDRP
+ipv6 router isis PRTR
  exit
 !
 router-id 0.0.0.4
@@ -483,7 +483,7 @@ router ospf6
  redistribute isis
 exit
 !
-router isis BSDRP
+router isis PRTR
  is-type level-1-2
  net 49.0001.1720.1600.4004.00
  redistribute ipv4 ospf level-1
@@ -674,7 +674,7 @@ sysrc -f /etc/jails/jail5/rc.conf hostname=jail5 \
 ifconfig -l | grep -q vtnet && sed -i "" 's/em/vtnet/g' /etc/jails/jail5/rc.conf
 mkdir -p /etc/jails/jail5/local/frr
 cat > /etc/jails/jail5/local/dhcpd.conf <<EOF
-option domain-name "bsdrp.net";
+option domain-name "prtr.net";
 default-lease-time 600;
 max-lease-time 7200;
 ddns-update-style none;
@@ -701,19 +701,19 @@ hostname jail5
 log syslog
 !
 interface em3
- ip router isis BSDRP
- ipv6 router isis BSDRP
+ ip router isis PRTR
+ ipv6 router isis PRTR
 !
 interface epair0a
- ip router isis BSDRP
- ipv6 router isis BSDRP
+ ip router isis PRTR
+ ipv6 router isis PRTR
  isis passive
 !
 interface vtnet3
- ip router isis BSDRP
- ipv6 router isis BSDRP
+ ip router isis PRTR
+ ipv6 router isis PRTR
 !
-router isis BSDRP
+router isis PRTR
  is-type level-1-2
  net 49.0001.1720.1600.5005.00
 !
@@ -1435,9 +1435,9 @@ interface epair2b
 !
 interface epair3a
  ip address 192.168.45.4/24
- ip router isis BSDRP
+ ip router isis PRTR
  ipv6 address 2001:db8:45::4/64
- ipv6 router isis BSDRP
+ ipv6 router isis PRTR
  isis circuit-type level-2-only
 !
 router ospf
@@ -1452,7 +1452,7 @@ router ospf6
  redistribute isis
  interface epair2b area 0.0.0.0
 !
-router isis BSDRP
+router isis PRTR
  is-type level-1-2
  net 49.0000.0000.0004.00
  redistribute ipv4 ospf level-2
@@ -1479,16 +1479,16 @@ log syslog
 !
 interface epair3b
  ip address 192.168.45.5/24
- ip router isis BSDRP
+ ip router isis PRTR
  ipv6 address 2001:db8:45::5/64
- ipv6 router isis BSDRP
+ ipv6 router isis PRTR
  isis circuit-type level-2-only
 !
 interface epair4a
  ip address 192.168.56.5/24
- ip router isis BSDRP
+ ip router isis PRTR
  ipv6 address 2001:db8:56::5/64
- ipv6 router isis BSDRP
+ ipv6 router isis PRTR
  isis circuit-type level-2-only
  isis passive
 !
@@ -1498,7 +1498,7 @@ router babel
  redistribute ipv4 isis
  redistribute ipv6 isis
 !
-router isis BSDRP
+router isis PRTR
  is-type level-1-2
  net 49.0000.0000.0005.00
  redistribute ipv4 babel level-2
@@ -1790,9 +1790,9 @@ interface vtnet2
 !
 interface vtnet3
  ip address 192.168.45.4/24
- ip router isis BSDRP
+ ip router isis PRTR
  ipv6 address 2001:db8:45::4/64
- ipv6 router isis BSDRP
+ ipv6 router isis PRTR
  isis circuit-type level-2-only
 !
 router ospf
@@ -1807,7 +1807,7 @@ router ospf6
  redistribute isis
  interface vtnet2 area 0.0.0.0
 !
-router isis BSDRP
+router isis PRTR
  is-type level-1-2
  net 49.0000.0000.0004.00
  redistribute ipv4 ospf level-2
@@ -1840,16 +1840,16 @@ log syslog
 !
 interface vtnet3
  ip address 192.168.45.5/24
- ip router isis BSDRP
+ ip router isis PRTR
  ipv6 address 2001:db8:45::5/64
- ipv6 router isis BSDRP
+ ipv6 router isis PRTR
  isis circuit-type level-2-only
 !
 interface vtnet4
  ip address 192.168.56.5/24
- ip router isis BSDRP
+ ip router isis PRTR
  ipv6 address 2001:db8:56::5/64
- ipv6 router isis BSDRP
+ ipv6 router isis PRTR
  isis circuit-type level-2-only
  isis passive
 !
@@ -1859,7 +1859,7 @@ router babel
  redistribute ipv4 isis
  redistribute ipv6 isis
 !
-router isis BSDRP
+router isis PRTR
  is-type level-1-2
  net 49.0000.0000.0005.00
  redistribute ipv4 babel level-2
@@ -3573,7 +3573,7 @@ sysrc hostname=VM4 \
   firewall_script="/etc/ipfw.rules"
 
 cat > /usr/local/etc/dhcpd.conf <<EOF
-option domain-name "bsdrp.net";
+option domain-name "prtr.net";
 default-lease-time 600;
 max-lease-time 7200;
 ddns-update-style none;

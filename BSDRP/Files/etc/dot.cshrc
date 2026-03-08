@@ -11,7 +11,7 @@ alias la        ls -aF
 alias lf        ls -FA
 alias ll		ls -lAF
 
-# Some BSDRP aliases:
+# Some PRTR aliases:
 alias ls		ls -G
 alias cli		vtysh
 alias include	grep

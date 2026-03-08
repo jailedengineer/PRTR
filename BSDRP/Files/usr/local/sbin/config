@@ -1,9 +1,9 @@
 #!/bin/sh
 #
 # Configuration tool for BSD Router Project
-# https://bsdrp.net
+# https://prtr.net
 #
-# Copyright (c) 2009-2025, The BSDRP Development Team
+# Copyright (c) 2009-2025, The PRTR Development Team
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@ set -e
 
 # Global variables
 
-lock="/var/run/config.bsdrp.lock"
+lock="/var/run/config.prtr.lock"
 
 # Checking if script is running inside a jail or not
 [ $(sysctl -n security.jail.jailed) -eq 0 ] && INSIDEJAIL=false || INSIDEJAIL=true
@@ -127,7 +127,7 @@ mount_data () {
 	is_mounted /data && return 0
 
 	# call this function after testing is_mounted /data
-	# Old BSDRP (previous to 0.54) didn't have /data directory neither fstab adapted
+	# Old PRTR (previous to 0.54) didn't have /data directory neither fstab adapted
 	# Fix this problem
 	if [ ! -d /data ]; then
 		mount -o rw -u / || \
@@ -137,7 +137,7 @@ mount_data () {
 			echo "WARNING: Can't remount root filesystem in read-only mode"
 	fi
 	grep -q "/data" /etc/fstab || \
-		echo "/dev/ufs/BSDRPs4 /data ufs rw,noauto 2 2" >> /etc/fstab
+		echo "/dev/ufs/PRTRs4 /data ufs rw,noauto 2 2" >> /etc/fstab
 
 	mount /data && return 0 || return 1
 }

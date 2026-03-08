@@ -57,8 +57,8 @@ done
 # Disabled: Could generate multiple errors messages on screen
 # echo "-D" > ${WORLDDIR}/boot.config
 
-# Replace BSDRP_VERSION in /boot/lua/brand-bsdrp.lua with the version number in etc/version
-sed -i "" -e /BSDRP_VERSION/s//$(cat ${WORLDDIR}/etc/version)/ ${WORLDDIR}/boot/lua/brand-bsdrp.lua
+# Replace PRTR_VERSION in /boot/lua/brand-prtr.lua with the version number in etc/version
+sed -i "" -e /PRTR_VERSION/s//$(cat ${WORLDDIR}/etc/version)/ ${WORLDDIR}/boot/lua/brand-prtr.lua
 
 # SSH:
 # - Allow root (the only user by default)

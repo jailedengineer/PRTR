@@ -1,10 +1,10 @@
-BSD Router project (BSDRP) (c) 2009-2021, The BSDRP Development Team
-All rights reserved.
-BSDRP is under the Simplified BSD license.
+PRTR - Paulo's Router (c) 2024-2026, NLINK
+Based on BSDRP by Olivier Cochard-Labbe
+PRTR is under the Simplified BSD license.
 
-Documentation: https://bsdrp.net
+Documentation: https://nlink.com.br
 
-Discover BSDRP tools with "help" command
+Discover PRTR tools with "help" command
 
 Keyboard layout can be changed with this command:
 kbdcontrol -l keymap_file (<TAB> to list available maps)

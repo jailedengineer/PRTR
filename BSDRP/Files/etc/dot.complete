@@ -1,4 +1,4 @@
-# Some BSDRP command complete
+# Some PRTR command complete
 complete config  'p/1/(save diff apply factory rollback put get help)/'
 complete show  'p/1/(authors help ifstat license memory mbuf mroute mtraffic route process packages traffic tech-support version zone)/'
 complete route 'p/1/(add flush del change get monitor)/'
