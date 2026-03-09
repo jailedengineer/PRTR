@@ -1,5 +1,0 @@
-TIMESTAMP = 1773014489
-SHA256 (go/net-mgmt_bird_exporter/bird_exporter-v1.4.5/v1.4.5.mod) = 512eb3f2206e4b37398309cf7798a7dbfc5ad9151fd7618351b50d6b94c8f6f1
-SIZE (go/net-mgmt_bird_exporter/bird_exporter-v1.4.5/v1.4.5.mod) = 923
-SHA256 (go/net-mgmt_bird_exporter/bird_exporter-v1.4.5/v1.4.5.zip) = b653befd787c01a11be4b23fdedad0f7903a2fc2cbe4a6fb7e525007537c4a3f
-SIZE (go/net-mgmt_bird_exporter/bird_exporter-v1.4.5/v1.4.5.zip) = 1533168

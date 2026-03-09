@@ -1,9 +1,0 @@
-bird_exporter exports BIRD routing daemon metrics in Prometheus format.
-
-It connects to the BIRD control socket and exports per-protocol
-statistics including BGP session state, OSPF neighbors, prefix counts,
-uptime, and import/export filters.
-
-Supports BIRD 1.x and BIRD 2.x (use -bird.v2 flag for version 2+).
-
-WWW: https://github.com/czerwonk/bird_exporter

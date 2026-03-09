@@ -58,4 +58,4 @@ sysutils/lcdproc
 net/trafshow
 sysutils/node_exporter
 lang/go
-net-mgmt/bird_exporter
+net-mgmt/prometheus-bird-exporter
