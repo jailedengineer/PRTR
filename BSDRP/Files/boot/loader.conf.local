@@ -100,3 +100,7 @@ net.isr.maxqlimit=1000000
 
 # Use all cores for netisr processing
 net.isr.maxthreads=-1
+
+# Compat with old cryptograph sessions:
+tcpmd5_load="YES"
+
