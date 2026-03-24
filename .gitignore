@@ -7,3 +7,5 @@ EINE/local.data
 EINE/DEMO.data/GeoLite2-City.mmdb
 EINE/DEMO.data/GeoLite2-City.mmdb.gz
 poudriere.etc/poudriere.d/*.bak
+CLAUDE.md
+.claude
