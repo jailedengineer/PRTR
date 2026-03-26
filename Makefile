@@ -1,5 +1,5 @@
 # BSD Router Project
-# https://bsdrp.net
+# https://prtr.net
 
 # Cf the help target at the end of the file for targets descriptions
 
@@ -60,21 +60,21 @@
 # - BSD: VAR != command     vs GNU: VAR := $(shell command)
 ###############################################################################
 # Poudriere configuration files are in poudriere.etc/poudriere.d/
-# - First build a "builder" jail (BSDRPj), which is a reduced FreeBSD but
+# - First build a "builder" jail (PRTRj), which is a reduced FreeBSD but
 #   still needs to have compiler tools to build packages.
-#   - List of WITHOUT in BSDRPj-src.conf
+#   - List of WITHOUT in PRTRj-src.conf
 #   - Custom kernel configuration file (amd64 here)
 # - Second, from this builder jail, we generate packages:
-#   - ports list in BSDRP-pkglist
-#   - ports options in BSDRPj-make.conf
+#   - ports list in PRTR-pkglist
+#   - ports options in PRTRj-make.conf
 # - Third, generate a nanobsd-like, uefi compliant firmware image
-#   - No need for compiler tools, more WITHOUT_ options added in image-BSDRPj-src.conf
+#   - No need for compiler tools, more WITHOUT_ options added in image-PRTRj-src.conf
 #   - But some unwanted files are still present, so add a list of them
 #     in excluded.files
 #   - Avoid extracting unwanted files from package using a pkg.conf
 #     in BSDRP/Files/usr/local/etc/pkg.conf
 #   - And a post customization script in post-script.sh that:
-#     - Replace BSDRP_VERSION in boot menu
+#     - Replace PRTR_VERSION in boot menu
 #     - Create some symlinks
 #     - Customize fstab
 #     - Generate mtree
@@ -98,7 +98,7 @@ poudriere_basefs != grep '^BASEFS=' /usr/local/etc/poudriere.conf | cut -d '=' -
 # := is immediate assignment (evaluated once when defined)
 # ${var} expands the variable's value
 poudriere_images_dir := ${poudriere_basefs}/data/images
-poudriere_jail_dir := ${poudriere_basefs}/jails/BSDRPj
+poudriere_jail_dir := ${poudriere_basefs}/jails/PRTRj
 
 # Conditionally set sudo variable based on whether we're running as root
 # ${USER} is an environment variable
@@ -163,12 +163,12 @@ kernel = ${OBJ_DIR}/FreeBSD/sys/${src_arch}/conf/${src_arch}
 VERSION != cat ${SRC_DIR}/BSDRP/Files/etc/version
 
 # Define output image file paths
-BSDRP_IMG_FULL = ${poudriere_images_dir}/BSDRP-${VERSION}-full-${MACHINE_ARCH}.img
-BSDRP_IMG_UPGRADE = ${poudriere_images_dir}/BSDRP-${VERSION}-upgrade-${MACHINE_ARCH}.img
-BSDRP_IMG_DEBUG = ${poudriere_images_dir}/BSDRP-${VERSION}-debug-${MACHINE_ARCH}.tar
-BSDRP_IMG_MTREE = ${poudriere_images_dir}/BSDRP-${VERSION}-${MACHINE_ARCH}.mtree
-IMAGES := ${BSDRP_IMG_FULL} ${BSDRP_IMG_UPGRADE} ${BSDRP_IMG_MTREE} ${BSDRP_IMG_DEBUG}
-COMPRESSED_IMAGES := ${BSDRP_IMG_FULL}.xz ${BSDRP_IMG_UPGRADE}.xz ${BSDRP_IMG_MTREE}.xz ${BSDRP_IMG_DEBUG}.xz
+PRTR_IMG_FULL = ${poudriere_images_dir}/PRTR-${VERSION}-full-${MACHINE_ARCH}.img
+PRTR_IMG_UPGRADE = ${poudriere_images_dir}/PRTR-${VERSION}-upgrade-${MACHINE_ARCH}.img
+PRTR_IMG_DEBUG = ${poudriere_images_dir}/PRTR-${VERSION}-debug-${MACHINE_ARCH}.tar
+PRTR_IMG_MTREE = ${poudriere_images_dir}/PRTR-${VERSION}-${MACHINE_ARCH}.mtree
+IMAGES := ${PRTR_IMG_FULL} ${PRTR_IMG_UPGRADE} ${PRTR_IMG_MTREE} ${PRTR_IMG_DEBUG}
+COMPRESSED_IMAGES := ${PRTR_IMG_FULL}.xz ${PRTR_IMG_UPGRADE}.xz ${PRTR_IMG_MTREE}.xz ${PRTR_IMG_DEBUG}.xz
 # The %= modifier applies a suffix to each item in a list
 CHECKSUM_IMAGES := ${COMPRESSED_IMAGES:%=%.sha256}
 
@@ -338,20 +338,20 @@ ${kernel}: ${SRC_DIR}/BSDRP/kernels/${src_arch}
 	@echo "Install kernel for arch ${MACHINE_ARCH} (${src_arch})"
 	@cp ${SRC_DIR}/BSDRP/kernels/${src_arch} ${OBJ_DIR}/FreeBSD/sys/${src_arch}/conf/
 
-${OBJ_DIR}/build-builder-jail: ${OBJ_DIR}/patch-sources ${SRC_DIR}/poudriere.etc/poudriere.d/BSDRPj-src.conf.common
+${OBJ_DIR}/build-builder-jail: ${OBJ_DIR}/patch-sources ${SRC_DIR}/poudriere.etc/poudriere.d/PRTRj-src.conf.common
 	@echo "Build the builder jail and kernel..."
 	# All jail-src.conf need to end by MODULES_OVERRIDE section because this is arch dependends
-	@cp ${SRC_DIR}/poudriere.etc/poudriere.d/BSDRPj-src.conf.common ${SRC_DIR}/poudriere.etc/poudriere.d/BSDRPj-src.conf
-	@if [ -f ${SRC_DIR}/poudriere.etc/poudriere.d/BSDRPj-src.conf.${src_arch} ]; then \
-		cat ${SRC_DIR}/poudriere.etc/poudriere.d/BSDRPj-src.conf.${src_arch} >> ${SRC_DIR}/poudriere.etc/poudriere.d/BSDRPj-src.conf; \
+	@cp ${SRC_DIR}/poudriere.etc/poudriere.d/PRTRj-src.conf.common ${SRC_DIR}/poudriere.etc/poudriere.d/PRTRj-src.conf
+	@if [ -f ${SRC_DIR}/poudriere.etc/poudriere.d/PRTRj-src.conf.${src_arch} ]; then \
+		cat ${SRC_DIR}/poudriere.etc/poudriere.d/PRTRj-src.conf.${src_arch} >> ${SRC_DIR}/poudriere.etc/poudriere.d/PRTRj-src.conf; \
 	else \
-		echo "" >> ${SRC_DIR}/poudriere.etc/poudriere.d/BSDRPj-src.conf; \
+		echo "" >> ${SRC_DIR}/poudriere.etc/poudriere.d/PRTRj-src.conf; \
 	fi
 	# Determine if jail exists: use update (u) if it exists, otherwise create (c)
 	# This allows the same target to handle both initial creation and updates
-	@JAIL_ACTION=$$(${sudo} poudriere -e ${SRC_DIR}/poudriere.etc jail -ln | grep -q BSDRPj && echo "u" || echo "c"); \
+	@JAIL_ACTION=$$(${sudo} poudriere -e ${SRC_DIR}/poudriere.etc jail -ln | grep -q PRTRj && echo "u" || echo "c"); \
 	echo "debug: $${JAIL_ACTION}"; \
-	${sudo} poudriere -e ${SRC_DIR}/poudriere.etc jail -$${JAIL_ACTION} -j BSDRPj -b -m src=${OBJ_DIR}/FreeBSD -K ${src_arch} > ${OBJ_DIR}/build.jail.log; \
+	${sudo} poudriere -e ${SRC_DIR}/poudriere.etc jail -$${JAIL_ACTION} -j PRTRj -b -m src=${OBJ_DIR}/FreeBSD -K ${src_arch} > ${OBJ_DIR}/build.jail.log; \
 	if [ $$? -ne 0 ]; then \
 		echo "ERROR: Jail build failed. Last 50 lines of log:"; \
 		tail -n 50 ${OBJ_DIR}/build.jail.log; \
@@ -361,47 +361,47 @@ ${OBJ_DIR}/build-builder-jail: ${OBJ_DIR}/patch-sources ${SRC_DIR}/poudriere.etc
 
 ${OBJ_DIR}/build-ports-tree: ${OBJ_DIR}/patch-sources
 	# Determine if ports tree exists: update or create as needed
-	@ports_action=$$(${sudo} poudriere -e ${SRC_DIR}/poudriere.etc ports -ln | grep -q BSDRPp && echo "u" || echo "c") && \
-	${sudo} poudriere -e ${SRC_DIR}/poudriere.etc ports -$${ports_action} -p BSDRPp -m null -M ${OBJ_DIR}/ports
+	@ports_action=$$(${sudo} poudriere -e ${SRC_DIR}/poudriere.etc ports -ln | grep -q PRTRp && echo "u" || echo "c") && \
+	${sudo} poudriere -e ${SRC_DIR}/poudriere.etc ports -$${ports_action} -p PRTRp -m null -M ${OBJ_DIR}/ports
 	@touch ${.TARGET}
 
-${OBJ_DIR}/build-packages: ${OBJ_DIR}/build-builder-jail ${OBJ_DIR}/build-ports-tree ${SRC_DIR}/poudriere.etc/poudriere.d/BSDRP-pkglist.common
+${OBJ_DIR}/build-packages: ${OBJ_DIR}/build-builder-jail ${OBJ_DIR}/build-ports-tree ${SRC_DIR}/poudriere.etc/poudriere.d/PRTR-pkglist.common
 	@echo "Build packages..."
-	@cp ${SRC_DIR}/poudriere.etc/poudriere.d/BSDRP-pkglist.common ${OBJ_DIR}/pkglist || exit 1
-	@if [ -f ${SRC_DIR}/poudriere.etc/poudriere.d/BSDRP-pkglist.${src_arch} ]; then \
-		cat ${SRC_DIR}/poudriere.etc/poudriere.d/BSDRP-pkglist.${src_arch} >> ${OBJ_DIR}/pkglist || exit 1; \
+	@cp ${SRC_DIR}/poudriere.etc/poudriere.d/PRTR-pkglist.common ${OBJ_DIR}/pkglist || exit 1
+	@if [ -f ${SRC_DIR}/poudriere.etc/poudriere.d/PRTR-pkglist.${src_arch} ]; then \
+		cat ${SRC_DIR}/poudriere.etc/poudriere.d/PRTR-pkglist.${src_arch} >> ${OBJ_DIR}/pkglist || exit 1; \
 	fi
-	@${sudo} poudriere -e ${SRC_DIR}/poudriere.etc bulk -j BSDRPj -p BSDRPp -f ${OBJ_DIR}/pkglist || { \
+	@${sudo} poudriere -e ${SRC_DIR}/poudriere.etc bulk -j PRTRj -p PRTRp -f ${OBJ_DIR}/pkglist || { \
 		echo "Error: Package build failed"; \
 		exit 1; \
 	}
 	@touch ${.TARGET}
 
-${BSDRP_IMG_FULL} ${BSDRP_IMG_UPGRADE} ${BSDRP_IMG_MTREE} ${BSDRP_IMG_DEBUG}: ${OBJ_DIR}/build-packages ${SRC_DIR}/poudriere.etc/poudriere.d/post-script.sh ${overlay_files}
+${PRTR_IMG_FULL} ${PRTR_IMG_UPGRADE} ${PRTR_IMG_MTREE} ${PRTR_IMG_DEBUG}: ${OBJ_DIR}/build-packages ${SRC_DIR}/poudriere.etc/poudriere.d/post-script.sh ${overlay_files}
 	@echo "Build image..."
 	# Only remove old images and compressed files, don't remove if they're already current
 	# The poudriere image command will overwrite them anyway
 	@${sudo} rm -f ${CHECKSUM_IMAGES} ${COMPRESSED_IMAGES}
-	# Replace version in brand-bsdrp.lua
-	@sed -i '' -e s"/BSDRP_VERSION/${VERSION}/" ${SRC_DIR}/BSDRP/Files/boot/lua/brand-bsdrp.lua
+	# Replace version in brand-prtr.lua
+	@sed -i '' -e s"/PRTR_VERSION/${VERSION}/" ${SRC_DIR}/BSDRP/Files/boot/lua/brand-prtr.lua
 	# Image size of 4g still too big to upgrade previous 4g nanobsd image, need to reduce
 	@${sudo} poudriere -e ${SRC_DIR}/poudriere.etc image -t firmware -s 3.95g \
-		-j BSDRPj -p BSDRPp -n BSDRP -h router.bsdrp.net \
+		-j PRTRj -p PRTRp -n PRTR -h router.prtr.net \
 		-c ${SRC_DIR}/BSDRP/Files/ \
 		-f ${OBJ_DIR}/pkglist \
 		-X ${SRC_DIR}/poudriere.etc/poudriere.d/excluded.files \
 		-A ${SRC_DIR}/poudriere.etc/poudriere.d/post-script.sh
-	# Restore brand-bsdrp.lua
-	@git -C ${SRC_DIR}/BSDRP/Files/boot/lua checkout brand-bsdrp.lua
-	@test -f ${poudriere_images_dir}/BSDRP.img || { echo "Error: ${poudriere_images_dir}/BSDRP.img was not created"; exit 1; }
-	@${sudo} tar cf ${BSDRP_IMG_DEBUG} -C ${poudriere_jail_dir}/usr/lib debug
-	@${sudo} mv ${poudriere_images_dir}/BSDRP.img ${BSDRP_IMG_FULL}
-	@${sudo} mv ${poudriere_images_dir}/BSDRP-upgrade.img ${BSDRP_IMG_UPGRADE}
-	@${sudo} mv ${poudriere_images_dir}/BSDRP.mtree ${BSDRP_IMG_MTREE}
+	# Restore brand-prtr.lua
+	@git -C ${SRC_DIR}/BSDRP/Files/boot/lua checkout brand-prtr.lua
+	@test -f ${poudriere_images_dir}/PRTR.img || { echo "Error: ${poudriere_images_dir}/PRTR.img was not created"; exit 1; }
+	@${sudo} tar cf ${PRTR_IMG_DEBUG} -C ${poudriere_jail_dir}/usr/lib debug
+	@${sudo} mv ${poudriere_images_dir}/PRTR.img ${PRTR_IMG_FULL}
+	@${sudo} mv ${poudriere_images_dir}/PRTR-upgrade.img ${PRTR_IMG_UPGRADE}
+	@${sudo} mv ${poudriere_images_dir}/PRTR.mtree ${PRTR_IMG_MTREE}
 	@echo "Uncompressed image availables as:"
-	@echo "- ${BSDRP_IMG_FULL}"
-	@echo "- ${BSDRP_IMG_UPGRADE}"
-	@echo "- ${BSDRP_IMG_MTREE}"
+	@echo "- ${PRTR_IMG_FULL}"
+	@echo "- ${PRTR_IMG_UPGRADE}"
+	@echo "- ${PRTR_IMG_MTREE}"
 
 upstream-sync: sync-FreeBSD sync-ports
 	@new_version=$$(git -C ${src_FreeBSD_dir} rev-list --count HEAD) && \
@@ -415,22 +415,22 @@ clean-all: clean-jail clean-ports-tree clean-images clean-src
 clean-jail: clean-packages
 	@echo "Deleting builder jail..."
 	# XXX Do not clean if no builder jail ?
-	@${sudo} poudriere -e ${SRC_DIR}/poudriere.etc jail -y -d -j BSDRPj || echo Missing builder jail
+	@${sudo} poudriere -e ${SRC_DIR}/poudriere.etc jail -y -d -j PRTRj || echo Missing builder jail
 	# Older obj dir is often the main root cause of build issue
 	# XXX How to dynamicaly retreive this directory ?
-	@${sudo} rm -rf /usr/obj/usr/local/poudriere/jails/BSDRPj || echo Missing obj directory
+	@${sudo} rm -rf /usr/obj/usr/local/poudriere/jails/PRTRj || echo Missing obj directory
 	@rm -f ${OBJ_DIR}/build-builder-jail
 
 clean-ports-tree: clean-packages
 	@echo "Deleting port-tree..."
-	@${sudo} poudriere -e ${SRC_DIR}/poudriere.etc ports -y -d -p BSDRPp || echo Missing port tree
+	@${sudo} poudriere -e ${SRC_DIR}/poudriere.etc ports -y -d -p PRTRp || echo Missing port tree
 	@rm -f ${OBJ_DIR}/build-ports-tree
 
 clean-packages:
 	@echo "Deleting all existing packages..."
-	@${sudo} poudriere -e ${SRC_DIR}/poudriere.etc distclean -y -a -p BSDRPp || echo Missing port tree
-	@${sudo} poudriere -e ${SRC_DIR}/poudriere.etc logclean -y -a -j BSDRPj -p BSDRPp || echo Missing port tree or jail
-	@${sudo} poudriere -e ${SRC_DIR}/poudriere.etc pkgclean -y -A -j BSDRPj -p BSDRPp || echo Missing port tree or jail
+	@${sudo} poudriere -e ${SRC_DIR}/poudriere.etc distclean -y -a -p PRTRp || echo Missing port tree
+	@${sudo} poudriere -e ${SRC_DIR}/poudriere.etc logclean -y -a -j PRTRj -p PRTRp || echo Missing port tree or jail
+	@${sudo} poudriere -e ${SRC_DIR}/poudriere.etc pkgclean -y -A -j PRTRj -p PRTRp || echo Missing port tree or jail
 	@rm -f ${OBJ_DIR}/build-packages
 
 clean-images:
