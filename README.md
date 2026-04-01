@@ -12,7 +12,7 @@
 
 **PRTR** is a FreeBSD-based router distribution forked from [BSDRP](https://github.com/ocochard/BSDRP) (BSD Router Project by Olivier Cochard-Labbé), focused on:
 
-- **BIRD 3.x** multithreading performance research at full DFZ scale
+- **BIRD 3.x** multithreading performance research at full DFZ (Default-Free Zone) scale
 - **Post-Quantum Cryptography (PQC)** BGP session research using OpenSSL 3.6.1 + liboqs + oqs-provider
 
 ---
