@@ -189,7 +189,7 @@ PRTR modifications Copyright (c) 2026, Paulo Fragoso / NLINK ISP
 ## Author
 
 **Paulo Fragoso** — paulo@nlink.com.br  
-Founder/Director of Engineering, NLINK ISP  
+Co-Founder/Director of Engineering, NLINK ISP  
 Founder/CTO, GMNET Telecomunicações  
 Electronic Engineer & FreeBSD kernel contributor  
 Recife, Brazil
