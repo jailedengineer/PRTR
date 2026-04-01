@@ -1,14 +1,19 @@
 # PRTR — Paulo's Router
 
-<p align="center">
-  <img src="BSDRP/Files/boot/lua/brand-prtr.lua" alt="PRTR" width="400"/>
-</p>
+```
+  ____  ____  _______ ____
+ |  _ \|  _ \|__   __|  _ \
+ | |_) | |_) |  | |  | |_) |
+ |  __/|    /   | |  |    /
+ | |   | |\ \   | |  | |\ \
+ | |   | | | |  | |  | | | | NLINK
+ |_|   |_| |_|  |_|  |_| |_| 2.1.1-dev
+```
 
 **PRTR** is a FreeBSD-based router distribution forked from [BSDRP](https://github.com/ocochard/BSDRP) (BSD Router Project by Olivier Cochard-Labbé), focused on:
 
 - **BIRD 3.x** multithreading performance research at full DFZ scale
 - **Post-Quantum Cryptography (PQC)** BGP session research using OpenSSL 3.6.1 + liboqs + oqs-provider
-- **Production IX.br peering** — tested with ~60 BGP sessions and 3M+ routes
 
 ---
 
@@ -38,7 +43,7 @@
 BIRD 3.x with `threads 4` on VEP1485 (Denverton C3958):
 
 - **3M+ routes** from full DFZ table
-- **~60 BGP sessions** peering at IX.br (SP, RJ, CE, SC, BA, PR, RS, DF, PE)
+- **~60 BGP sessions** across multiple Brazilian IXes
 - `birdc show protocols` response: **3.39 seconds** under full load
 - OSPF `Full/DR` — no missed hellos
 
