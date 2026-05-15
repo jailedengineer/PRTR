@@ -422,7 +422,7 @@ EOF
                 cent=$(printf '%x\n' $((id / 255)))
                 unit=$(printf '%02x\n' $((id % 255)))
             else
-                cent="0"
+                cent="00"
                 unit=$(printf '%02x\n' ${id})
             fi
             if [ "$bid" -lt 256 ]; then
@@ -435,7 +435,7 @@ EOF
     vnet.interface  += "epair${id}${bid}b";
     exec.prestart  += "ifconfig epair${id}${bid} create";
     exec.prestart  += "ifconfig epair${id}${bid}a ether 02:${bridgemac}:${hostfirst}:${hostsecond}:${cent}:${unit}";
-    exec.prestart  += "ifconfig epair${id}${bid}b ether 02:${bridgemac}:${hostfirst}:${hostsecond}:${cent}:0${unit}";
+    exec.prestart  += "ifconfig epair${id}${bid}b ether 02:${bridgemac}:${hostfirst}:${hostsecond}:${cent}:$(printf '%02x' $((0x${unit} | 0x80)))";
     exec.prestart  += "ifconfig epair${id}${bid}a up";
     exec.prestart  += "ifconfig ${nicname} addm epair${id}${bid}a up";
     exec.poststop  += "ifconfig ${nicname} deletem epair${id}${bid}a";
