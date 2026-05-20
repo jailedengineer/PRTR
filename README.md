@@ -1,4 +1,4 @@
-# PRTR — Paulo's Router
+# PRTR — PQC-Ready Telecommunications Router
 
 ```
   ____  ____  _______ ____
@@ -7,13 +7,27 @@
  |  __/|    /   | |  |    /
  | |   | |\ \   | |  | |\ \
  | |   | | | |  | |  | | | | NLINK
- |_|   |_| |_|  |_|  |_| |_| 2.1.1-dev
+ |_|   |_| |_|  |_|  |_| |_| 2.1.3-dev
 ```
 
-**PRTR** is a FreeBSD-based router distribution forked from [BSDRP](https://github.com/ocochard/BSDRP) (BSD Router Project by Olivier Cochard-Labbé), focused on:
+**PRTR** is an open-source FreeBSD-based router distribution for critical telecommunications infrastructure, forked from [BSDRP](https://github.com/ocochard/BSDRP) (BSD Router Project by Olivier Cochard-Labbé).
 
-- **BIRD 3.x** multithreading performance research at full DFZ (Default-Free Zone) scale
-- **Post-Quantum Cryptography (PQC)** BGP session research using OpenSSL 3.6.1 + liboqs + oqs-provider
+*Open-source BGP routing platform with post-quantum cryptography for critical infrastructure.*
+
+---
+
+## Overview
+
+PRTR addresses a strategic gap in telecommunications infrastructure: major router vendors (Cisco, Huawei, Juniper) have no published PQC roadmap for carrier-grade equipment, while quantum computers capable of breaking classical BGP session cryptography are projected within 10–15 years.
+
+PRTR provides a production-proven, auditable, nationally-managed firmware alternative based on FreeBSD and BIRD 3.x, with a complete NIST-standardized post-quantum cryptography stack.
+
+### Core capabilities
+
+- **BIRD 3.x** multithreading at full DFZ (Default-Free Zone) scale — ~3M routes
+- **Post-Quantum Cryptography** — OpenSSL 3.6.1 + liboqs + oqs-provider with NIST FIPS 203/204/205 algorithms (ML-KEM, ML-DSA, SLH-DSA)
+- **Remote upgrade** — NanoBSD dual-partition: no USB, no long maintenance window
+- **Tenant routing** — multiple isolated virtual routers on a single appliance via FreeBSD jails
 
 ---
 
@@ -23,8 +37,9 @@
 |---------|-------|------|
 | Routing daemon | FRR / BIRD 2 | BIRD 3.x |
 | TLS stack | OpenSSL (default) | OpenSSL 3.6.1 (PQC-capable) |
-| PQC support | No | liboqs + oqs-provider |
+| PQC support | No | liboqs + oqs-provider (NIST FIPS 203/204/205) |
 | Metrics | — | prometheus-bird-exporter + node_exporter |
+| Tenant routing | Basic | Enhanced jail management (`tenant` script) |
 
 ---
 
@@ -32,9 +47,12 @@
 
 | Platform | CPU | Role |
 |----------|-----|------|
+| Dell VEP4600 | Intel Xeon D-2187NT (Skylake-D) | PQC research platform |
 | Dell VEP1485 | Intel Atom C3958 (Denverton) | Primary production router |
 | Dell R630 | Intel Xeon E5-2673 v3 | IPFW bandwidth shaping |
-| ServerU L800 | Intel Atom C2758 (Avoton) | Production router (legacy) |
+| Lanner L800 | Intel Atom C2758 (Avoton) | Production router (legacy) |
+| Lanner L400 | — | Production router (legacy) |
+| PC Engines APU | AMD GX-412TC | Edge deployments |
 
 ---
 
@@ -42,10 +60,27 @@
 
 BIRD 3.x with `threads 4` on VEP1485 (Denverton C3958):
 
-- **3M+ routes** from full DFZ table
-- **~60 BGP sessions** across multiple Brazilian IXes
+- **3M+ routes** from full DFZ (Default-Free Zone) table
+- **~60 BGP sessions** (IPv4 + IPv6) across multiple Brazilian Internet Exchanges
 - `birdc show protocols` response: **3.39 seconds** under full load
 - OSPF `Full/DR` — no missed hellos
+- Memory: **~979MB** for full DFZ table
+
+---
+
+## PQC Stack
+
+```
+Application (iBGP sessions)
+    └── TLS 1.3 with hybrid groups (X25519MLKEM768)
+        └── oqs-provider 0.11.0
+            └── liboqs 0.15.0
+                ├── ML-KEM  (FIPS 203) — Key Encapsulation
+                ├── ML-DSA  (FIPS 204) — Digital Signature
+                └── SLH-DSA (FIPS 205) — Hash-based Signature
+            └── OpenSSL 3.6.1
+                └── FreeBSD 16.0-CURRENT (PRTR-AMD64 kernel)
+```
 
 ---
 
@@ -69,7 +104,7 @@ cd PRTR
 make release
 ```
 
-The first build takes 2-4 hours. Subsequent builds only rebuild changed packages.
+The first build takes 2–4 hours. Subsequent builds only rebuild changed packages.
 
 ### Build targets
 
@@ -86,14 +121,14 @@ make help         # Show all targets
 
 ---
 
-## Upgrade (Remote, No USB)
+## Remote Upgrade (No USB)
 
 ```sh
 # Copy upgrade image to router
-scp PRTR-2.1.1-dev-upgrade-amd64.img.xz root@router:/data/
+scp PRTR-2.1.3-dev-upgrade-amd64.img.xz root@router:/data/
 
 # On router — upgrade to inactive partition
-xzcat /data/PRTR-2.1.1-dev-upgrade-amd64.img.xz | upgrade
+xzcat /data/PRTR-2.1.3-dev-upgrade-amd64.img.xz | upgrade
 
 # Reboot into new version
 reboot
@@ -133,10 +168,8 @@ system rollback
 
 PRTR 2.1.x is built from:
 
-- **FreeBSD src**: commit `5b7aa6c7bc9` (16.0-CURRENT, March 13 2026)
+- **FreeBSD src**: commit `5b7aa6c7bc9` (16.0-CURRENT, March 2026)
 - **FreeBSD ports**: tracked in `Makefile.vars`
-
-To update to latest sources:
 
 ```sh
 make upstream-sync
@@ -151,20 +184,30 @@ make release
 # bird.conf — top level (not inside options {})
 threads 4;    # Recommended for Denverton C3958
 
-# BGP password — BIRD3 assumes MD5 by default
-# Just use simple form:
+# BGP TCP MD5 — BIRD3 assumes MD5 by default
 password "secret";
 ```
 
 Function return types must be explicit in BIRD3:
 
 ```
-# BIRD2 style (warning in BIRD3)
-function net_martian() { ... }
-
-# BIRD3 style (correct)
+# Correct BIRD3 syntax
 function net_martian() -> bool { ... }
 ```
+
+---
+
+## Upstream Contributions
+
+Bugs found during PRTR development and contributed upstream:
+
+| Project | Contribution | Status |
+|---------|-------------|--------|
+| FreeBSD kernel | [D55607](https://reviews.freebsd.org/D55607) — hwpmc: fix amd_get_msr() RDPMC indexing | Committed |
+| FreeBSD kernel | [D56029](https://reviews.freebsd.org/D56029) — hwpmc: improve diagnostic messages | Committed |
+| FreeBSD kernel | [D56050](https://reviews.freebsd.org/D56050) — hwpmc.4: correct stale defaults | Committed |
+| BSDRP | [PR #54](https://github.com/ocochard/BSDRP/pull/54) — Remove retired le(4) driver | Merged |
+| BSDRP | [PR #55](https://github.com/ocochard/BSDRP/pull/55) — Fix DEBUG_PROPAGATE empty string | Merged |
 
 ---
 
@@ -192,6 +235,4 @@ PRTR modifications Copyright (c) 2026, Paulo Fragoso / NLINK ISP
 Co-Founder/Director of Engineering, NLINK ISP  
 Founder/CTO, GMNET Telecomunicações  
 Electronic Engineer & FreeBSD kernel contributor  
-Recife, Brazil
-
-FreeBSD kernel contributions: [D55607](https://reviews.freebsd.org/D55607), [D56029](https://reviews.freebsd.org/D56029), [D56050](https://reviews.freebsd.org/D56050) — hwpmc(4) fixes
+Recife, Brazil · [LinkedIn](https://linkedin.com/in/jailedengineer) · [Substack](https://jailedengineer.substack.com)
