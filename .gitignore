@@ -9,4 +9,5 @@ EINE/DEMO.data/GeoLite2-City.mmdb.gz
 poudriere.etc/poudriere.d/*.bak
 CLAUDE.md
 .claude
+.claude/settings.local.json
 poudriere.etc/poudriere.d/PRTRj-src.conf
