@@ -385,10 +385,13 @@ ${PRTR_IMG_FULL} ${PRTR_IMG_UPGRADE} ${PRTR_IMG_MTREE} ${PRTR_IMG_DEBUG}: ${OBJ_
 	# Stage the file overlay into obj/ so we can do build-time substitutions
 	# without mutating the tracked tree (would otherwise leave git dirty if
 	# the build is interrupted before the restore step).
-	@rm -rf ${OBJ_DIR}/Files
+	@${sudo} rm -rf ${OBJ_DIR}/Files
 	@cp -R ${SRC_DIR}/BSDRP/Files ${OBJ_DIR}/Files
-	# Replace version in brand-prtr.lua (on the staged copy)
-	@sed -i '' -e s"/PRTR_VERSION/${VERSION}/" ${OBJ_DIR}/Files/boot/lua/brand-prtr.lua
+	# Replace version in brand-bsdrp.lua (on the staged copy)
+	@sed -i '' -e s"/BSDRP_VERSION/${VERSION}/" ${OBJ_DIR}/Files/boot/lua/brand-bsdrp.lua
+	# poudriere-image copies the overlay preserving ownership; force root:wheel
+	# so the image root fs isn't owned by whoever ran make.
+	@${sudo} chown -R 0:0 ${OBJ_DIR}/Files
 	# Image size of 4g still too big to upgrade previous 4g nanobsd image, need to reduce
 	@${sudo} poudriere -e ${SRC_DIR}/poudriere.etc image -t firmware -s 3.95g \
 		-j PRTRj -p PRTRp -n PRTR -h router.prtr.net \
