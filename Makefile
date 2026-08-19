@@ -387,8 +387,8 @@ ${PRTR_IMG_FULL} ${PRTR_IMG_UPGRADE} ${PRTR_IMG_MTREE} ${PRTR_IMG_DEBUG}: ${OBJ_
 	# the build is interrupted before the restore step).
 	@${sudo} rm -rf ${OBJ_DIR}/Files
 	@cp -R ${SRC_DIR}/BSDRP/Files ${OBJ_DIR}/Files
-	# Replace version in brand-bsdrp.lua (on the staged copy)
-	@sed -i '' -e s"/BSDRP_VERSION/${VERSION}/" ${OBJ_DIR}/Files/boot/lua/brand-bsdrp.lua
+	# Replace version in brand-prtr.lua (on the staged copy)
+	@sed -i '' -e s"/PRTR_VERSION/${VERSION}/" ${OBJ_DIR}/Files/boot/lua/brand-prtr.lua
 	# poudriere-image copies the overlay preserving ownership; force root:wheel
 	# so the image root fs isn't owned by whoever ran make.
 	@${sudo} chown -R 0:0 ${OBJ_DIR}/Files
